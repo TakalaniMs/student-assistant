@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:student_assistant/views/auth/splash_view.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'viewmodels/auth_viewmodel.dart';
@@ -35,8 +36,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Student Assistant App',
       debugShowCheckedModeBanner: false,
-      initialRoute: hasSession ? '/home' : '/login',
+      // initialRoute: hasSession ? '/home' : '/login',
+      initialRoute: hasSession ? '/home' : '/',
       routes: {
+        '/': (_) => const SplashView(),
         '/login': (_) => const LoginView(),
         '/register': (_) => const RegisterView(),
         '/home': (_) => const HomeView(),

@@ -1,6 +1,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
 
@@ -34,6 +35,12 @@ class AuthViewModel extends ChangeNotifier {
       _setLoading(false);
     }
   }
+
+  // Add this method inside AuthViewModel, after logout()
+
+Future<void> sendPasswordReset(String email) async {
+  await Supabase.instance.client.auth.resetPasswordForEmail(email);
+}
 
   Future<bool> register(String email, String password) async {
     _errorMessage = null;
