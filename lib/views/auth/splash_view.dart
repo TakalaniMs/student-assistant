@@ -51,6 +51,21 @@ class SplashView extends StatelessWidget {
 
               // Login button
               ElevatedButton(
+                 style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 54),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    textStyle: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    elevation: 0,
+                  ),
+
                 onPressed: () =>
                     Navigator.pushReplacementNamed(context, '/login'),
                 child: const Text('Login'),

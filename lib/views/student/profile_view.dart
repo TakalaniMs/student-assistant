@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../app_theme.dart';
@@ -44,7 +43,8 @@ class _ProfileViewState extends State<ProfileView> {
       _studentNumberCtrl.text = data['student_number'] ?? '';
       _phoneCtrl.text = data['phone'] ?? '';
       _selectedYear = data['year_of_study'];
-    } catch (_) {} finally {
+    } catch (_) {
+    } finally {
       setState(() => _isLoading = false);
     }
   }
@@ -65,9 +65,11 @@ class _ProfileViewState extends State<ProfileView> {
         yearOfStudy: _selectedYear!,
         phone: _phoneCtrl.text.trim(),
       );
-      if (mounted) AppSnackbar.success(context, 'Profile updated successfully!');
+      if (mounted)
+        AppSnackbar.success(context, 'Profile updated successfully!');
     } catch (_) {
-      if (mounted) AppSnackbar.error(context, 'Failed to update profile. Try again.');
+      if (mounted)
+        AppSnackbar.error(context, 'Failed to update profile. Try again.');
     } finally {
       setState(() => _isSaving = false);
     }
@@ -92,19 +94,26 @@ class _ProfileViewState extends State<ProfileView> {
         backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new,
-              color: AppTheme.primary, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppTheme.primary,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('My Profile',
-            style: TextStyle(
-                color: AppTheme.textPrimary,
-                fontWeight: FontWeight.w700,
-                fontFamily: 'Poppins')),
+        title: const Text(
+          'My Profile',
+          style: TextStyle(
+            color: AppTheme.textPrimary,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Poppins',
+          ),
+        ),
       ),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: AppTheme.primary))
+              child: CircularProgressIndicator(color: AppTheme.primary),
+            )
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Form(
@@ -125,17 +134,22 @@ class _ProfileViewState extends State<ProfileView> {
                               ? _firstNameCtrl.text[0].toUpperCase()
                               : email[0].toUpperCase(),
                           style: const TextStyle(
-                              fontSize: 32,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700),
+                            fontSize: 32,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
 
                     const SizedBox(height: 8),
-                    Text(email,
-                        style: const TextStyle(
-                            color: AppTheme.textSecondary, fontSize: 13)),
+                    Text(
+                      email,
+                      style: const TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
 
                     const SizedBox(height: 28),
 
@@ -185,12 +199,16 @@ class _ProfileViewState extends State<ProfileView> {
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide.none,
                         ),
-                        prefixIcon: const Icon(Icons.school_outlined,
-                            color: AppTheme.textSecondary, size: 20),
+                        prefixIcon: const Icon(
+                          Icons.school_outlined,
+                          color: AppTheme.textSecondary,
+                          size: 20,
+                        ),
                       ),
                       items: _years
-                          .map((y) =>
-                              DropdownMenuItem(value: y, child: Text(y)))
+                          .map(
+                            (y) => DropdownMenuItem(value: y, child: Text(y)),
+                          )
                           .toList(),
                       onChanged: (v) => setState(() => _selectedYear = v),
                     ),
@@ -199,12 +217,29 @@ class _ProfileViewState extends State<ProfileView> {
 
                     ElevatedButton(
                       onPressed: _isSaving ? null : _save,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primary,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 54),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        textStyle: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        elevation: 0,
+                      ),
                       child: _isSaving
                           ? const SizedBox(
                               height: 22,
                               width: 22,
                               child: CircularProgressIndicator(
-                                  color: Colors.white, strokeWidth: 2.5))
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
                           : const Text('Save Changes'),
                     ),
                   ],

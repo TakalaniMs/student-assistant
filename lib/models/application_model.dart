@@ -1,7 +1,6 @@
-
 class ApplicationModule {
-  final String academicLevel; // '1st Year', '2nd Year', '3rd Year'
-  final String semester;      // 'Semester 1', 'Semester 2'
+  final String academicLevel;
+  final String semester;
   final String moduleCode;
   final String moduleName;
 
@@ -32,13 +31,14 @@ class ApplicationModel {
   final String? id;
   final String studentId;
   final String yearOfStudy;
-  final List<ApplicationModule> modules; // max 2
+  final List<ApplicationModule> modules;
   final bool confirmedEligibility;
   final String? transcriptUrl;
   final String? idDocumentUrl;
   final String? proofOfRegistrationUrl;
-  final String status; // 'pending', 'approved', 'rejected'
+  final String status;
   final DateTime? createdAt;
+  final Map<String, dynamic>? studentProfile;
 
   ApplicationModel({
     this.id,
@@ -51,6 +51,7 @@ class ApplicationModel {
     this.proofOfRegistrationUrl,
     this.status = 'pending',
     this.createdAt,
+    this.studentProfile, // now properly in constructor
   });
 
   Map<String, dynamic> toMap() => {
@@ -79,5 +80,6 @@ class ApplicationModel {
         createdAt: m['created_at'] != null
             ? DateTime.parse(m['created_at'])
             : null,
+        studentProfile: m['profiles'],
       );
 }

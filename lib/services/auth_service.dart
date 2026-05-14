@@ -1,5 +1,3 @@
-
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_model.dart';
 
@@ -8,10 +6,7 @@ class AuthService {
 
   // Signs up and inserts a row into the `profiles` table with default role 'student'
   Future<UserModel> register(String email, String password) async {
-    final res = await _client.auth.signUp(
-      email: email,
-      password: password,
-    );
+    final res = await _client.auth.signUp(email: email, password: password);
 
     final uid = res.user!.id;
 
@@ -32,13 +27,21 @@ class AuthService {
 
     final uid = res.user!.id;
 
-    // Fetch the profile to get the stored role
+    // Use maybeSingle in case profile row has issues
     final profile = await _client
         .from('profiles')
         .select()
         .eq('id', uid)
-        .single();
+        .maybeSingle();
 
+    // If no profile found, return basic user with role from email or default
+    if (profile == null) {
+      return UserModel(id: uid, email: email, role: 'student');
+    }
+    if (profile['role'] == 'disabled') {
+      await _client.auth.signOut();
+      throw Exception('Your account has been disabled. Contact admin.');
+    }
     return UserModel.fromMap(profile);
   }
 

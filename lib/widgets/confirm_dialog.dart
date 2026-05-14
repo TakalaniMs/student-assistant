@@ -55,7 +55,7 @@ class ConfirmDialog {
                   isDanger ? AppTheme.error : AppTheme.primary,
               minimumSize: const Size(100, 42),
             ),
-            child: Text(confirmText),
+            child: Text(confirmText,style: TextStyle(color: AppTheme.surface),),
           ),
         ],
       ),
