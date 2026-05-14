@@ -25,23 +25,27 @@ class AuthService {
   }
 
   Future<UserModel> login(String email, String password) async {
-    final res = await _client.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
+  final res = await _client.auth.signInWithPassword(
+    email: email,
+    password: password,
+  );
 
-    final uid = res.user!.id;
+  final uid = res.user!.id;
 
-    // Fetch the profile to get the stored role
-    final profile = await _client
-        .from('profiles')
-        .select()
-        .eq('id', uid)
-        .single();
+  // Use maybeSingle in case profile row has issues
+  final profile = await _client
+      .from('profiles')
+      .select()
+      .eq('id', uid)
+      .maybeSingle();
 
-    return UserModel.fromMap(profile);
+  // If no profile found, return basic user with role from email or default
+  if (profile == null) {
+    return UserModel(id: uid, email: email, role: 'student');
   }
 
+  return UserModel.fromMap(profile);
+}
   Future<void> logout() async {
     await _client.auth.signOut();
   }

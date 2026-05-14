@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:student_assistant/viewmodels/admin_viewmodel.dart';
 import 'package:student_assistant/viewmodels/application_viewmodel.dart';
+import 'package:student_assistant/views/admin/admin_dashboard_view.dart';
 import 'package:student_assistant/views/auth/splash_view.dart';
 import 'package:student_assistant/views/student/profile_view.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -23,6 +25,7 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(create: (_) => ApplicationViewModel()),
+        ChangeNotifierProvider(create: (_) => AdminViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -48,6 +51,7 @@ class MyApp extends StatelessWidget {
         '/register': (_) => const RegisterView(),
         '/home': (_) => const HomeView(),
         '/profile': (_) => const ProfileView(),
+        '/admin': (_) => const AdminDashboardView(),
         // '/admin': (_) => const AdminDashboardView(), // add later
       },
     );

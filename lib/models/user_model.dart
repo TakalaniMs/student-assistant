@@ -4,6 +4,7 @@ class UserModel {
   final String role;
   final String? firstName;
   final String? lastName;
+  final String? studentNumber;
 
   UserModel({
     required this.id,
@@ -11,6 +12,7 @@ class UserModel {
     required this.role,
     this.firstName,
     this.lastName,
+    this.studentNumber
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -20,6 +22,7 @@ class UserModel {
       role: map['role'] ?? 'student',
       firstName: map['first_name'],
       lastName: map['last_name'],
+      studentNumber: map['student_number'],
     );
   }
 }
