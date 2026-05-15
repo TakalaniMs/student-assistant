@@ -1,5 +1,6 @@
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/admin_notification_model.dart';
 import '../models/application_model.dart';
 import '../models/user_model.dart';
 
@@ -25,6 +26,24 @@ class AdminService {
         .order('created_at', ascending: false);
 
     return (data as List).map((e) => ApplicationModel.fromMap(e)).toList();
+  }
+
+  Future<List<AdminNotificationModel>> getNotifications() async {
+    final data = await _client
+        .from('admin_notifications')
+        .select('*, applications(*, application_modules(*), profiles(*))')
+        .order('created_at', ascending: false);
+
+    return (data as List)
+        .map((e) => AdminNotificationModel.fromMap(e))
+        .toList();
+  }
+
+  Future<void> markNotificationAsRead(String notificationId) async {
+    await _client
+        .from('admin_notifications')
+        .update({'is_read': true})
+        .eq('id', notificationId);
   }
 
   // Fetch a single student's profile

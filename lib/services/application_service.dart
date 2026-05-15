@@ -52,6 +52,14 @@ class ApplicationService {
       });
     }
 
+    await _client.from('admin_notifications').insert({
+      'application_id': appId,
+      'student_id': uid,
+      'title': 'New application submitted',
+      'message': 'A student submitted a new Student Assistant application.',
+      'is_read': false,
+    });
+
     return ApplicationModel.fromMap({
       ...appData,
       'application_modules':

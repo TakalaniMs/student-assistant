@@ -11,6 +11,7 @@ import '../../widgets/confirm_dialog.dart';
 import '../../widgets/status_badge.dart';
 import '../auth/login_view.dart';
 import 'assigned_subjects_view.dart';
+import 'admin_notifications_view.dart';
 import 'student_list_view.dart';
 
 class AdminDashboardView extends StatefulWidget {
@@ -112,6 +113,21 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                 else ...[
                   _statsGrid(vm),
                   const SizedBox(height: 20),
+                  _navButton(
+                    label: vm.unreadNotificationCount > 0
+                        ? 'Notifications (${vm.unreadNotificationCount})'
+                        : 'Notifications',
+                    icon: Icons.notifications_none,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminNotificationsView(),
+                        ),
+                      ).then((_) => vm.loadDashboard());
+                    },
+                  ),
+                  const SizedBox(height: 12),
                   _navButton(
                     label: 'View All Students',
                     icon: Icons.people_outline,
