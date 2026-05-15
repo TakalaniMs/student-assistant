@@ -10,6 +10,7 @@ import '../../widgets/app_snackbar.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../widgets/status_badge.dart';
 import '../auth/login_view.dart';
+import 'assigned_subjects_view.dart';
 import 'student_list_view.dart';
 
 class AdminDashboardView extends StatefulWidget {
@@ -35,14 +36,17 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       message: 'Are you sure you want to log out?',
       confirmText: 'Log Out',
     );
-    if (confirmed && mounted) {
-      await context.read<AuthViewModel>().logout();
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginView()),
-        (_) => false,
-      );
-    }
+
+    if (!confirmed || !mounted) return;
+
+    await context.read<AuthViewModel>().logout();
+    if (!mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginView()),
+      (_) => false,
+    );
   }
 
   @override
@@ -55,54 +59,49 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       body: SafeArea(
         child: RefreshIndicator(
           color: AppTheme.primary,
-          onRefresh: () => vm.loadDashboard(),
+          onRefresh: vm.loadDashboard,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 24),
-
-                // Top bar
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hello, ${user?.firstName ?? 'Admin'}',
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
-                            fontFamily: 'Poppins',
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Hello, ${user?.firstName ?? 'Admin'}',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textPrimary,
+                              fontFamily: 'Poppins',
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        const Text(
-                          'Admin Portal',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppTheme.textSecondary,
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Admin Dashboard',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppTheme.textSecondary,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    // Logout
                     IconButton(
                       onPressed: _logout,
-                      icon: const Icon(
-                        Icons.logout,
-                        color: AppTheme.textPrimary,
-                      ),
+                      icon: const Icon(Icons.logout),
+                      color: AppTheme.textPrimary,
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 28),
-
-                // Stats cards
+                const SizedBox(height: 24),
                 if (vm.isLoading)
                   const Center(
                     child: Padding(
@@ -111,26 +110,12 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                     ),
                   )
                 else ...[
-
-                  const SizedBox(height: 28),
-
-                  // View all students button
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primary,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 54),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      textStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      elevation: 0,
-                    ),
-                    onPressed: () {
+                  _statsGrid(vm),
+                  const SizedBox(height: 20),
+                  _navButton(
+                    label: 'View All Students',
+                    icon: Icons.people_outline,
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -138,13 +123,21 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                         ),
                       ).then((_) => vm.loadDashboard());
                     },
-                    icon: const Icon(Icons.people_outline, size: 18),
-                    label: const Text('View All Students'),
                   ),
-
+                  const SizedBox(height: 12),
+                  _navButton(
+                    label: 'Assigned Subjects',
+                    icon: Icons.menu_book_outlined,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AssignedSubjectsView(),
+                        ),
+                      ).then((_) => vm.loadDashboard());
+                    },
+                  ),
                   const SizedBox(height: 28),
-
-                  // Recent applications
                   const Text(
                     'Recent Applications',
                     style: TextStyle(
@@ -154,59 +147,17 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                       fontFamily: 'Poppins',
                     ),
                   ),
-                  const SizedBox(height: 16),
-
+                  const SizedBox(height: 14),
                   if (vm.applications.isEmpty)
                     _emptyState('No applications yet.')
                   else
-                    // Show latest 5 applications
-                    ...vm.applications
-                        .take(5)
-                        .map(
+                    ...vm.applications.take(5).map(
                           (app) => Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: _applicationCard(app, vm),
                           ),
                         ),
-                                          // 2x2 stats grid
-                  Column(
-                    // crossAxisCount: 2,
-                    // shrinkWrap: true,
-                    // physics: const NeverScrollableScrollPhysics(),
-                    // crossAxisSpacing: 16,
-                    // mainAxisSpacing: 16,
-                    // childAspectRatio: 1.4,
-                    children: [
-                      _statCard(
-                        'Total',
-                        vm.stats['total'] ?? 0,
-                        Icons.folder_open_outlined,
-                        AppTheme.primary,
-                      ),
-                      _statCard(
-                        'Pending',
-                        vm.stats['pending'] ?? 0,
-                        Icons.hourglass_empty_outlined,
-                        const Color(0xFFFB8C00),
-                      ),
-                      _statCard(
-                        'Approved',
-                        vm.stats['approved'] ?? 0,
-                        Icons.check_circle_outline,
-                        AppTheme.success,
-                      ),
-                      _statCard(
-                        'Rejected',
-                        vm.stats['rejected'] ?? 0,
-                        Icons.cancel_outlined,
-                        AppTheme.error,
-                      ),
-                    ],
-                  ),
-
                 ],
-
-                const SizedBox(height: 40),
               ],
             ),
           ),
@@ -214,35 +165,97 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       ),
     );
   }
-Widget _statCard(String label, int count, IconData icon, Color color) {
-  return ListTile(
-    leading: Icon(icon, color: color),
-    title: Text(
-      label,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-      ),
-    ),
-    trailing: Text(
-      count.toString(),
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        color: color,
-      ),
-    ),
-  );
-}
 
+  Widget _statsGrid(AdminViewModel vm) {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.65,
+      children: [
+        _statCard('Total', vm.stats['total'] ?? 0, Icons.folder_open_outlined,
+            AppTheme.primary),
+        _statCard('Pending', vm.stats['pending'] ?? 0,
+            Icons.hourglass_empty_outlined, const Color(0xFFFB8C00)),
+        _statCard('Approved', vm.stats['approved'] ?? 0,
+            Icons.check_circle_outline, AppTheme.success),
+        _statCard('Rejected', vm.stats['rejected'] ?? 0,
+            Icons.cancel_outlined, AppTheme.error),
+      ],
+    );
+  }
 
-Widget _applicationCard(ApplicationModel app, AdminViewModel vm) {
+  Widget _statCard(String label, int count, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.18)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Icon(icon, color: color, size: 22),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+              Text(
+                count.toString(),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _navButton({
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppTheme.primary,
+        foregroundColor: Colors.white,
+        minimumSize: const Size(double.infinity, 52),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 0,
+      ),
+      onPressed: onTap,
+      icon: Icon(icon, size: 19),
+      label: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Poppins',
+        ),
+      ),
+    );
+  }
+
+  Widget _applicationCard(ApplicationModel app, AdminViewModel vm) {
     final name = app.studentProfile != null
         ? '${app.studentProfile!['first_name'] ?? ''} ${app.studentProfile!['last_name'] ?? ''}'
-              .trim()
+            .trim()
         : app.studentId.substring(0, 8);
-
-    // Build a UserModel from the embedded profile for navigation
     final student = app.studentProfile != null
         ? UserModel.fromMap(app.studentProfile!)
         : UserModel(id: app.studentId, email: '', role: 'student');
@@ -251,20 +264,13 @@ Widget _applicationCard(ApplicationModel app, AdminViewModel vm) {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primary.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.primary.withOpacity(0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: Text(
@@ -291,8 +297,7 @@ Widget _applicationCard(ApplicationModel app, AdminViewModel vm) {
             ),
           ),
           const SizedBox(height: 12),
-
-          if (app.status == 'pending')
+          if (app.status == 'pending') ...[
             Row(
               children: [
                 Expanded(
@@ -316,9 +321,8 @@ Widget _applicationCard(ApplicationModel app, AdminViewModel vm) {
                 ),
               ],
             ),
-
-          // View Application button — always visible
-          if (app.status == 'pending') const SizedBox(height: 10),
+            const SizedBox(height: 10),
+          ],
           _actionButton(
             label: 'View Application',
             color: AppTheme.primary,
@@ -346,14 +350,15 @@ Widget _applicationCard(ApplicationModel app, AdminViewModel vm) {
     required IconData icon,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withOpacity(0.08),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withOpacity(0.25)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -382,38 +387,43 @@ Widget _applicationCard(ApplicationModel app, AdminViewModel vm) {
   ) async {
     final confirmed = await ConfirmDialog.show(
       context,
-      title: status == 'approved'
-          ? 'Approve Application'
-          : 'Reject Application',
+      title: status == 'approved' ? 'Approve Application' : 'Reject Application',
       message:
           'Are you sure you want to ${status == 'approved' ? 'approve' : 'reject'} this application?',
       confirmText: status == 'approved' ? 'Approve' : 'Reject',
       isDanger: status == 'rejected',
     );
-    if (confirmed && context.mounted) {
-      final success = await vm.updateApplicationStatus(appId, status);
-      if (context.mounted) {
-        if (success) {
-          AppSnackbar.success(
-            context,
-            status == 'approved'
-                ? 'Application approved.'
-                : 'Application rejected.',
-          );
-        } else {
-          AppSnackbar.error(context, 'Action failed. Try again.');
-        }
-      }
+
+    if (!confirmed || !context.mounted) return;
+
+    final success = await vm.updateApplicationStatus(appId, status);
+    if (!context.mounted) return;
+
+    if (success) {
+      AppSnackbar.success(
+        context,
+        status == 'approved'
+            ? 'Application approved.'
+            : 'Application rejected.',
+      );
+    } else {
+      AppSnackbar.error(context, 'Action failed. Try again.');
     }
   }
 
-  Widget _emptyState(String message) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(40),
+  Widget _emptyState(String message) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Text(
         message,
-        style: const TextStyle(color: AppTheme.surface, fontSize: 14),
+        textAlign: TextAlign.center,
+        style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
       ),
-    ),
-  );
+    );
+  }
 }

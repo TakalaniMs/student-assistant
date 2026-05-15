@@ -8,7 +8,6 @@ import '../../widgets/app_snackbar.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../widgets/status_badge.dart';
 import 'admin_application_detail_view.dart';
-import 'admin_profile_edit_view.dart';
 
 class AdminStudentDetailView extends StatefulWidget {
   final UserModel student;
@@ -118,21 +117,7 @@ class _AdminStudentDetailViewState extends State<AdminStudentDetailView> {
             fontWeight: FontWeight.w700,
             fontFamily: 'Poppins',
           ),
-        ),
-        actions: [
-          // Edit profile button
-          IconButton(
-            icon: const Icon(Icons.edit_outlined, color: AppTheme.primary),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => AdminProfileEditView(student: student),
-                ),
-              ).then((_) => _loadApplications());
-            },
-          ),
-        ],
+        )
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
